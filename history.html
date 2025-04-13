@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoScan - Lịch sử quét</title>
+    <style>
+      :root {
+        --primary-color: #4caf50;
+        --primary-dark: #388e3c;
+        --primary-light: #c8e6c9;
+        --accent-color: #8bc34a;
+        --text-color: #212121;
+        --text-light: #757575;
+        --white: #ffffff;
+        --background: #f9f9f9;
+        --danger-color: #f44336;
+        --warning-color: #ffc107;
+        --ewaste-color: #ff9800;
+        --verified-color: #00c853;
+        --pending-color: #ffc107;
+        --grey-light: #f5f5f5;
+        --border-color: #eeeeee;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--text-color);
+        line-height: 1.6;
+        max-width: 100vw;
+        overflow-x: hidden;
+        position: relative;
+        min-height: 100vh;
+      }
+
+      header {
+        background-color: var(--primary-color);
+        color: var(--white);
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .back-button {
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 1.3rem;
+        cursor: pointer;
+        padding: 0.3rem;
+        margin-right: 0.5rem;
+      }
+
+      .header-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        flex: 1;
+      }
+
+      .search-button {
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 1.3rem;
+        cursor: pointer;
+        padding: 0.3rem;
+      }
+
+      .filter-button {
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 1.3rem;
+        cursor: pointer;
+        padding: 0.3rem;
+        margin-left: 0.5rem;
+      }
+
+      .main-container {
+        padding: 1rem;
+        padding-bottom: 5rem;
+      }
+
+      .search-container {
+        position: relative;
+        margin-bottom: 1rem;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 2.8rem;
+        border: none;
+        border-radius: 8px;
+        background-color: var(--white);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        font-size: 1rem;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+        font-size: 1.2rem;
+      }
+
+      .filter-tabs {
+        display: flex;
+        background-color: var(--white);
+        border-radius: 8px;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .filter-tab {
+        padding: 0.8rem 1.2rem;
+        white-space: nowrap;
+        color: var(--text-light);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .filter-tab.active {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+      }
+
+      .history-count {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0 0.5rem;
+      }
+
+      .count-text {
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      .sort-dropdown {
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .sort-icon {
+        margin-left: 0.3rem;
+      }
+
+      .history-list {
+        margin-bottom: 1rem;
+      }
+
+      .date-divider {
+        padding: 0.5rem 0.5rem;
+        margin: 1rem 0 0.5rem;
+        color: var(--text-light);
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .history-item {
+        background-color: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        margin-bottom: 1rem;
+        overflow: hidden;
+      }
+
+      .item-content {
+        display: flex;
+        padding: 1rem;
+      }
+
+      .item-image {
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+        margin-right: 1rem;
+        overflow: hidden;
+        flex-shrink: 0;
+        background-color: #f0f0f0;
+        background-image: url("/api/placeholder/70/70");
+        background-size: cover;
+        background-position: center;
+      }
+
+      .item-details {
+        flex: 1;
+      }
+
+      .item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.3rem;
+      }
+
+      .item-name {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .item-points {
+        font-size: 0.7em;
+        color: var(--primary-color);
+        font-weight: 600;
+        padding: 0.2rem 0.5rem;
+        background-color: var(--primary-light);
+        border-radius: 4px;
+        margin-left: 0.5rem;
+        min-width: 80px;
+      }
+
+      .item-meta {
+        display: flex;
+        font-size: 0.8rem;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .item-time {
+        margin-right: 0.8rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .meta-icon {
+        margin-right: 0.3rem;
+        font-size: 0.9rem;
+      }
+
+      .item-weight {
+        display: flex;
+        align-items: center;
+      }
+
+      .item-category {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        margin-top: 0.2rem;
+      }
+
+      .category-ewaste {
+        background-color: #fff8e1;
+        color: var(--ewaste-color);
+      }
+
+      .item-footer {
+        background-color: var(--grey-light);
+        padding: 0.7rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .item-status {
+        display: flex;
+        align-items: center;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .status-verified {
+        color: var(--verified-color);
+      }
+
+      .status-pending {
+        color: var(--pending-color);
+      }
+
+      .item-actions {
+        display: flex;
+      }
+
+      .action-button {
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        font-size: 0.8rem;
+        cursor: pointer;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        margin-left: 0.5rem;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--white);
+        display: flex;
+        justify-content: space-around;
+        padding: 0.8rem 0;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+        z-index: 100;
+      }
+
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-light);
+        font-size: 0.8rem;
+        padding: 0.4rem 0;
+        width: 25%;
+        text-align: center;
+      }
+
+      .nav-item.active {
+        color: var(--primary-color);
+      }
+
+      .nav-icon {
+        font-size: 1.3rem;
+        margin-bottom: 0.3rem;
+      }
+
+      .placeholder-image-1 {
+        background-image: url("/api/placeholder/70/70");
+      }
+
+      .placeholder-image-2 {
+        background-image: url("/api/placeholder/70/70");
+      }
+
+      .placeholder-image-3 {
+        background-image: url("/api/placeholder/70/70");
+      }
+
+      .placeholder-image-4 {
+        background-image: url("/api/placeholder/70/70");
+      }
+
+      .placeholder-image-5 {
+        background-image: url("/api/placeholder/70/70");
+      }
+
+      /* Floating action button for filtering */
+      .floating-filter {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
+        background-color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        font-size: 1.3rem;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-light);
+      }
+
+      /* Empty state */
+      .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        display: none;
+      }
+
+      .empty-icon {
+        font-size: 3rem;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+        opacity: 0.4;
+      }
+
+      .empty-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+      }
+
+      .empty-description {
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+      }
+
+      .scan-button {
+        background-color: var(--primary-color);
+        color: var(--white);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="header-container">
+        <div class="header-title">Lịch sử</div>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <div class="main-container">
+      <!-- Search bar -->
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Tìm kiếm theo tên hoặc loại..."
+        />
+      </div>
+
+      <!-- Empty state (hidden by default) -->
+      <div class="empty-state">
+        <div class="empty-icon">📷</div>
+        <h3 class="empty-title">Chưa có kết quả quét nào</h3>
+        <p class="empty-description">
+          Hãy bắt đầu quét rác thải của bạn để xem lịch sử tại đây.
+        </p>
+        <button class="scan-button">
+          <span>📷</span>
+          <span>Quét ngay</span>
+        </button>
+      </div>
+
+      <!-- History list -->
+      <div class="history-list">
+        <!-- Today group -->
+        <div class="date-divider">Hôm nay</div>
+
+        <div class="history-item">
+          <div class="item-content">
+            <div class="item-image placeholder-image-1"></div>
+            <div class="item-details">
+              <div class="item-header">
+                <div class="item-name">Màn hình LCD hỏng</div>
+                <div class="item-points">+200 điểm</div>
+              </div>
+              <div class="item-meta">
+                <div class="item-time">
+                  <span class="meta-icon">🕒</span>
+                  <span>15:30</span>
+                </div>
+                <div class="item-weight">
+                  <span class="meta-icon">⚖️</span>
+                  <span>4.2 kg</span>
+                </div>
+              </div>
+              <div class="item-category category-ewaste">Rác điện tử</div>
+            </div>
+          </div>
+          <div class="item-footer">
+            <div class="item-status status-verified">
+              <span class="meta-icon">✓</span>
+              <span>Đã xác nhận</span>
+            </div>
+            <div class="item-actions">
+              <button class="action-button">Chi tiết</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="history-item">
+          <div class="item-content">
+            <div class="item-image placeholder-image-2"></div>
+            <div class="item-details">
+              <div class="item-header">
+                <div class="item-name">Bàn phím hỏng</div>
+                <div class="item-points">+80 điểm</div>
+              </div>
+              <div class="item-meta">
+                <div class="item-time">
+                  <span class="meta-icon">🕒</span>
+                  <span>11:15</span>
+                </div>
+                <div class="item-weight">
+                  <span class="meta-icon">⚖️</span>
+                  <span>0.8 kg</span>
+                </div>
+              </div>
+              <div class="item-category category-ewaste">Rác điện tử</div>
+            </div>
+          </div>
+          <div class="item-footer">
+            <div class="item-status status-pending">
+              <span class="meta-icon">⌛</span>
+              <span>Đang chờ xác nhận</span>
+            </div>
+            <div class="item-actions">
+              <button class="action-button">Chi tiết</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Yesterday group -->
+        <div class="date-divider">Hôm qua</div>
+
+        <div class="history-item">
+          <div class="item-content">
+            <div class="item-image placeholder-image-3"></div>
+            <div class="item-details">
+              <div class="item-header">
+                <div class="item-name">Điện thoại cũ</div>
+                <div class="item-points">+150 điểm</div>
+              </div>
+              <div class="item-meta">
+                <div class="item-time">
+                  <span class="meta-icon">🕒</span>
+                  <span>10:15</span>
+                </div>
+                <div class="item-weight">
+                  <span class="meta-icon">⚖️</span>
+                  <span>0.3 kg</span>
+                </div>
+              </div>
+              <div class="item-category category-ewaste">Rác điện tử</div>
+            </div>
+          </div>
+          <div class="item-footer">
+            <div class="item-status status-verified">
+              <span class="meta-icon">✓</span>
+              <span>Đã xác nhận</span>
+            </div>
+            <div class="item-actions">
+              <button class="action-button">Chi tiết</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 12/04/2025 group -->
+        <div class="date-divider">12/04/2025</div>
+
+        <div class="history-item">
+          <div class="item-content">
+            <div class="item-image placeholder-image-4"></div>
+            <div class="item-details">
+              <div class="item-header">
+                <div class="item-name">Máy tính xách tay</div>
+                <div class="item-points">+300 điểm</div>
+              </div>
+              <div class="item-meta">
+                <div class="item-time">
+                  <span class="meta-icon">🕒</span>
+                  <span>09:42</span>
+                </div>
+                <div class="item-weight">
+                  <span class="meta-icon">⚖️</span>
+                  <span>2.5 kg</span>
+                </div>
+              </div>
+              <div class="item-category category-ewaste">Rác điện tử</div>
+            </div>
+          </div>
+          <div class="item-footer">
+            <div class="item-status status-verified">
+              <span class="meta-icon">✓</span>
+              <span>Đã xác nhận</span>
+            </div>
+            <div class="item-actions">
+              <button class="action-button">Chi tiết</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10/04/2025 group -->
+        <div class="date-divider">10/04/2025</div>
+
+        <div class="history-item">
+          <div class="item-content">
+            <div class="item-image placeholder-image-5"></div>
+            <div class="item-details">
+              <div class="item-header">
+                <div class="item-name">Màn hình máy tính</div>
+                <div class="item-points">+250 điểm</div>
+              </div>
+              <div class="item-meta">
+                <div class="item-time">
+                  <span class="meta-icon">🕒</span>
+                  <span>18:05</span>
+                </div>
+                <div class="item-weight">
+                  <span class="meta-icon">⚖️</span>
+                  <span>3.8 kg</span>
+                </div>
+              </div>
+              <div class="item-category category-ewaste">Rác điện tử</div>
+            </div>
+          </div>
+          <div class="item-footer">
+            <div class="item-status status-verified">
+              <span class="meta-icon">✓</span>
+              <span>Đã xác nhận</span>
+            </div>
+            <div class="item-actions">
+              <button class="action-button">Chi tiết</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom navigation -->
+    <nav class="bottom-nav">
+      <a href="./index.html" class="nav-item active">
+        <span class="nav-icon">🏠</span>
+        <span>Trang chủ</span>
+      </a>
+      <a href="./scan.html" class="nav-item">
+        <span class="nav-icon">📷</span>
+        <span>Quét</span>
+      </a>
+      <a href="./history.html" class="nav-item active">
+        <span class="nav-icon">📚</span>
+        <span>Lịch sử</span>
+      </a>
+      <a href="./account.html" class="nav-item">
+        <span class="nav-icon">👤</span>
+        <span>Tài khoản</span>
+      </a>
+    </nav>
+  </body>
+</html>

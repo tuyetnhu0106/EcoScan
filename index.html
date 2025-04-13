@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoScan - Ứng dụng phân loại rác thải thông minh</title>
+    <style>
+      :root {
+        --primary-color: #4caf50;
+        --primary-dark: #388e3c;
+        --primary-light: #c8e6c9;
+        --accent-color: #8bc34a;
+        --text-color: #212121;
+        --text-light: #757575;
+        --white: #ffffff;
+        --background: #f9f9f9;
+        --danger-color: #f44336;
+        --warning-color: #ffc107;
+        --ewaste-color: #ff9800;
+        --badge-bronze: #cd7f32;
+        --badge-silver: #a7a7ad;
+        --badge-gold: #ffd700;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--text-color);
+        line-height: 1.6;
+        max-width: 100vw;
+        overflow-x: hidden;
+        position: relative;
+        min-height: 100vh;
+      }
+
+      header {
+        background-color: var(--primary-color);
+        color: var(--white);
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.3rem;
+        font-weight: bold;
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        background-color: var(--white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .menu-icon {
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      .mobile-menu {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 80%;
+        height: 100%;
+        background-color: var(--white);
+        z-index: 200;
+        transition: left 0.3s ease;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        padding: 2rem 1rem;
+      }
+
+      .menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--primary-light);
+      }
+
+      .close-menu {
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      .menu-items {
+        list-style: none;
+      }
+
+      .menu-items li {
+        margin-bottom: 1.5rem;
+      }
+
+      .menu-items a {
+        color: var(--text-color);
+        text-decoration: none;
+        font-size: 1.1rem;
+        display: block;
+        padding: 0.5rem 0;
+      }
+
+      .menu-items a:hover {
+        color: var(--primary-color);
+      }
+
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 199;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+      }
+
+      .main-container {
+        padding: 1.5rem 1rem;
+      }
+
+      .welcome-section {
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .welcome-section h1 {
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+      }
+
+      .section-title {
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        position: relative;
+        padding-left: 1rem;
+      }
+
+      .section-title::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.2rem;
+        height: 80%;
+        width: 4px;
+        background-color: var(--primary-color);
+        border-radius: 2px;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--white);
+        display: flex;
+        justify-content: space-around;
+        padding: 0.8rem 0;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+        z-index: 100;
+      }
+
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-light);
+        font-size: 0.8rem;
+        padding: 0.4rem 0;
+        width: 25%;
+        text-align: center;
+      }
+
+      .nav-item.active {
+        color: var(--primary-color);
+      }
+
+      .nav-icon {
+        font-size: 1.3rem;
+        margin-bottom: 0.3rem;
+      }
+
+      /* JavaScript functionality simulation */
+      #menuCheckbox {
+        display: none;
+      }
+
+      #menuCheckbox:checked ~ .mobile-menu {
+        left: 0;
+      }
+
+      #menuCheckbox:checked ~ .overlay {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Extra space for bottom navigation */
+      .bottom-padding {
+        height: 70px;
+      }
+
+      /* Total Recycled Waste */
+      .recycled-total {
+        background: linear-gradient(135deg, #3f51b5, #2196f3);
+        border-radius: 16px;
+        color: var(--white);
+        padding: 1.2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+      }
+
+      .recycled-icon {
+        background-color: rgba(255, 255, 255, 0.2);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-right: 1rem;
+      }
+
+      .recycled-info {
+        flex: 1;
+      }
+
+      .recycled-label {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 0.3rem;
+      }
+
+      .recycled-value {
+        font-size: 2rem;
+        font-weight: 700;
+      }
+
+      .recycled-unit {
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      /* Points Dashboard */
+      .points-dashboard {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--primary-dark)
+        );
+        border-radius: 16px;
+        color: var(--white);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .points-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .points-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+
+      .points-rank {
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 0.4rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .rank-icon {
+        font-size: 1rem;
+      }
+
+      .points-total {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        display: flex;
+        align-items: center;
+      }
+
+      .points-label {
+        margin-left: 0.5rem;
+        font-size: 1rem;
+        opacity: 0.9;
+      }
+
+      .points-progress {
+        margin: 1rem 0;
+      }
+
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.3rem;
+        font-size: 0.9rem;
+      }
+
+      .progress-bar {
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background-color: var(--white);
+        border-radius: 4px;
+        width: 75%;
+      }
+
+      .points-actions {
+        display: flex;
+        margin-top: 1rem;
+        gap: 10px;
+      }
+
+      .points-button {
+        background-color: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: var(--white);
+        padding: 0.5rem 0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        gap: 0.3rem;
+      }
+
+      .points-button-icon {
+        font-size: 1.2rem;
+      }
+
+      .pattern-overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 140px;
+        height: 140px;
+        background-image: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 10%,
+          transparent 10.5%
+        );
+        background-size: 20px 20px;
+        opacity: 0.5;
+        transform: rotate(15deg);
+      }
+
+      /* Stats Cards */
+      .stats-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      .stat-card {
+        background-color: var(--white);
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        text-align: center;
+      }
+
+      .stat-icon {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 0.8rem;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.3rem;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-light);
+      }
+
+      /* History section */
+      .history-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .scan-history {
+        background-color: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+
+      .history-header {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        padding: 0.8rem 1rem;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .view-all {
+        font-size: 0.8rem;
+        color: var(--primary-dark);
+        text-decoration: none;
+        padding: 0.3rem 0.6rem;
+        background-color: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+      }
+
+      .history-list {
+        padding: 0;
+      }
+
+      .history-item {
+        display: flex;
+        padding: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        align-items: center;
+      }
+
+      .history-item:last-child {
+        border-bottom: none;
+      }
+
+      .item-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        background-color: #f0f0f0;
+        margin-right: 1rem;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .item-details {
+        flex: 1;
+      }
+
+      .item-name {
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        font-size: 1rem;
+      }
+
+      .item-meta {
+        display: flex;
+        font-size: 0.8rem;
+        color: var(--text-light);
+        margin-bottom: 0.3rem;
+        align-items: center;
+      }
+
+      .item-date {
+        margin-right: 0.8rem;
+      }
+
+      .item-category {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 500;
+      }
+
+      .category-ewaste {
+        background-color: #fff8e1;
+        color: var(--ewaste-color);
+      }
+
+      .item-points {
+        font-size: 0.8rem;
+        color: var(--primary-color);
+        font-weight: 600;
+      }
+
+      .item-arrow {
+        color: var(--text-light);
+        margin-left: 0.5rem;
+        font-size: 1.2rem;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .placeholder-image-1 {
+        background-image: url("/api/placeholder/60/60");
+      }
+
+      .placeholder-image-2 {
+        background-image: url("/api/placeholder/60/60");
+      }
+
+      .placeholder-image-3 {
+        background-image: url("/api/placeholder/60/60");
+      }
+
+      /* Badges Section */
+      .badges-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .badges-container {
+        background-color: var(--white);
+        border-radius: 12px;
+        padding: 1.2rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .badges-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .badges-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.8rem;
+      }
+
+      .badge-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .badge-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .badge-bronze {
+        background-color: #f9e4d4;
+        color: var(--badge-bronze);
+      }
+
+      .badge-silver {
+        background-color: #f1f1f1;
+        color: var(--badge-silver);
+      }
+
+      .badge-gold {
+        background-color: #fff8e1;
+        color: var(--badge-gold);
+      }
+
+      .badge-locked {
+        background-color: #f5f5f5;
+        color: #bdbdbd;
+        opacity: 0.7;
+      }
+
+      .badge-name {
+        font-size: 0.7rem;
+        color: var(--text-light);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Menu toggle checkbox -->
+    <input type="checkbox" id="menuCheckbox" />
+
+    <!-- Header -->
+    <header>
+      <div class="header-container">
+        <div class="logo">
+          <div class="logo-icon">♻️</div>
+          <div>EcoScan</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile menu -->
+    <div class="mobile-menu">
+      <div class="menu-header">
+        <div class="logo">
+          <div class="logo-icon">♻️</div>
+          <div>EcoScan</div>
+        </div>
+        <label for="menuCheckbox" class="close-menu">✕</label>
+      </div>
+      <ul class="menu-items">
+        <li><a href="#">Trang chủ</a></li>
+        <li><a href="#">Hướng dẫn phân loại</a></li>
+        <li><a href="#">Lịch sử quét</a></li>
+        <li><a href="#">Thống kê của bạn</a></li>
+        <li><a href="#">Cài đặt</a></li>
+        <li><a href="#">Giới thiệu</a></li>
+        <li><a href="#">Đăng xuất</a></li>
+      </ul>
+    </div>
+
+    <!-- Overlay for menu -->
+    <label for="menuCheckbox" class="overlay"></label>
+
+    <!-- Main content -->
+    <div class="main-container">
+      <section class="welcome-section">
+        <h1>Xin chào, Nguyễn Văn A</h1>
+      </section>
+
+      <!-- Total Recycled Waste -->
+      <section class="recycled-total">
+        <div class="recycled-icon">♻️</div>
+        <div class="recycled-info">
+          <div class="recycled-label">Tổng lượng rác thải đã tái chế</div>
+          <div class="recycled-value">
+            25.6 <span class="recycled-unit">kg</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Points Dashboard -->
+      <section class="points-dashboard">
+        <div class="pattern-overlay"></div>
+        <div class="points-header">
+          <div class="points-title">Điểm thành tích của bạn</div>
+          <div class="points-rank">
+            <span class="rank-icon">🥇</span>
+            <span>Vàng</span>
+          </div>
+        </div>
+
+        <div class="points-total">
+          750 <span class="points-label">điểm</span>
+        </div>
+
+        <div class="points-progress">
+          <div class="progress-label">
+            <span>Tiến độ lên Bạch Kim</span>
+            <span>750/1000</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+
+        <div class="points-actions">
+          <button class="points-button">
+            <span class="points-button-icon">🎖️</span>
+            <span>Phần thưởng</span>
+          </button>
+          <button class="points-button">
+            <span class="points-button-icon">📊</span>
+            <span>Xếp hạng</span>
+          </button>
+          <button class="points-button">
+            <span class="points-button-icon">🔍</span>
+            <span>Chi tiết</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Stats Section -->
+      <section class="stats-section">
+        <h2 class="section-title">Thành tích của bạn</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📱</div>
+            <div class="stat-value">8</div>
+            <div class="stat-label">Thiết bị điện tử đã xử lý</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🌱</div>
+            <div class="stat-value">42kg</div>
+            <div class="stat-label">CO2 giảm thiểu</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value">3</div>
+            <div class="stat-label">Huy hiệu đạt được</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value">5</div>
+            <div class="stat-label">Lần xác nhận điểm</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- History Section -->
+      <section class="history-section">
+        <h2 class="section-title">Lịch sử quét</h2>
+        <div class="scan-history">
+          <div class="history-header">
+            <span>Quét gần đây</span>
+            <a href="#" class="view-all">Xem tất cả</a>
+          </div>
+
+          <div class="history-list">
+            <div class="history-item">
+              <div class="item-image placeholder-image-1"></div>
+              <div class="item-details">
+                <div class="item-name">Màn hình LCD hỏng</div>
+                <div class="item-meta">
+                  <span class="item-date">Hôm nay, 15:30</span>
+                  <span class="item-category category-ewaste">Rác điện tử</span>
+                </div>
+                <div class="item-points">+200 điểm</div>
+              </div>
+              <div class="item-arrow">›</div>
+            </div>
+
+            <div class="history-item">
+              <div class="item-image placeholder-image-2"></div>
+              <div class="item-details">
+                <div class="item-name">Điện thoại cũ</div>
+                <div class="item-meta">
+                  <span class="item-date">Hôm qua, 10:15</span>
+                  <span class="item-category category-ewaste">Rác điện tử</span>
+                </div>
+                <div class="item-points">+150 điểm</div>
+              </div>
+              <div class="item-arrow">›</div>
+            </div>
+
+            <div class="history-item">
+              <div class="item-image placeholder-image-3"></div>
+              <div class="item-details">
+                <div class="item-name">Máy tính xách tay</div>
+                <div class="item-meta">
+                  <span class="item-date">12/04/2025, 09:42</span>
+                  <span class="item-category category-ewaste">Rác điện tử</span>
+                </div>
+                <div class="item-points">+300 điểm</div>
+              </div>
+              <div class="item-arrow">›</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Badges Section -->
+      <section class="badges-section">
+        <h2 class="section-title">Huy hiệu</h2>
+        <div class="badges-container">
+          <div class="badges-title">Huy hiệu đã đạt được</div>
+          <div class="badges-grid">
+            <div class="badge-item">
+              <div class="badge-icon badge-bronze">🔋</div>
+              <div class="badge-name">Tân binh</div>
+            </div>
+            <div class="badge-item">
+              <div class="badge-icon badge-silver">📱</div>
+              <div class="badge-name">Điện tử</div>
+            </div>
+            <div class="badge-item">
+              <div class="badge-icon badge-gold">🌱</div>
+              <div class="badge-name">Eco Hero</div>
+            </div>
+            <div class="badge-item">
+              <div class="badge-icon badge-locked">🔒</div>
+              <div class="badge-name">Chưa mở</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Extra space for bottom navigation -->
+      <div class="bottom-padding"></div>
+    </div>
+
+    <!-- Bottom navigation -->
+    <nav class="bottom-nav">
+      <a href="./index.html" class="nav-item active">
+        <span class="nav-icon">🏠</span>
+        <span>Trang chủ</span>
+      </a>
+      <a href="./scan.html" class="nav-item">
+        <span class="nav-icon">📷</span>
+        <span>Quét</span>
+      </a>
+      <a href="./history.html" class="nav-item">
+        <span class="nav-icon">📚</span>
+        <span>Lịch sử</span>
+      </a>
+      <a href="./account.html" class="nav-item">
+        <span class="nav-icon">👤</span>
+        <span>Tài khoản</span>
+      </a>
+    </nav>
+  </body>
+</html>

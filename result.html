@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoScan - Phân tích rác thải</title>
+    <style>
+      :root {
+        --primary-color: #4caf50;
+        --primary-dark: #388e3c;
+        --primary-light: #c8e6c9;
+        --accent-color: #8bc34a;
+        --text-color: #212121;
+        --text-secondary: #757575;
+        --white: #ffffff;
+        --background: #f5f5f5;
+        --card-bg: #ffffff;
+        --border-light: #e0e0e0;
+        --success-color: #66bb6a;
+        --info-color: #42a5f5;
+        --warning-color: #ffa726;
+        --danger-color: #ff5722;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--text-color);
+        line-height: 1.6;
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+
+      header {
+        background-color: var(--primary-color);
+        color: var(--white);
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .header-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+
+      .back-button {
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 1.3rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.3rem;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .header-button {
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 1.3rem;
+        cursor: pointer;
+      }
+
+      main {
+        padding: 1rem;
+        padding-bottom: 5rem;
+      }
+
+      .analysis-image-container {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+
+      .analysis-image {
+        width: 100%;
+        aspect-ratio: 4/3;
+        object-fit: cover;
+        display: block;
+        background-image: url("/api/placeholder/400/300");
+        background-size: cover;
+        background-position: center;
+      }
+
+      .image-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .analyze-status {
+        display: flex;
+        align-items: center;
+        color: var(--white);
+        font-weight: 500;
+        gap: 0.5rem;
+      }
+
+      .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: var(--success-color);
+      }
+
+      .edit-image {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: var(--white);
+        border-radius: 30px;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .results-container {
+        margin-bottom: 1.5rem;
+      }
+
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .results-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-dark);
+      }
+
+      .confidence-badge {
+        background-color: var(--success-color);
+        color: var(--white);
+        padding: 0.3rem 0.7rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .waste-type-card {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--danger-color);
+      }
+
+      .waste-type-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.8rem;
+      }
+
+      .waste-type-name {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--primary-dark);
+      }
+
+      .waste-category {
+        background-color: #ffccbc;
+        color: var(--danger-color);
+        padding: 0.3rem 0.7rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .warning-tag {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        background-color: #fff3e0;
+        color: #ff9800;
+        padding: 0.4rem 0.7rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .waste-properties {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-bottom: 1rem;
+      }
+
+      .waste-property {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      .property-icon {
+        color: var(--primary-color);
+        font-size: 1.1rem;
+        min-width: 20px;
+        text-align: center;
+      }
+
+      .waste-description {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .waste-components {
+        margin-top: 0.8rem;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+        padding: 0.8rem;
+      }
+
+      .components-title {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .item-list {
+        margin-top: 0.5rem;
+        padding-left: 1.5rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      .item-list li {
+        margin-bottom: 0.3rem;
+      }
+
+      .hazard-component {
+        color: var(--danger-color);
+        font-weight: 500;
+      }
+
+      .expand-button {
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0;
+      }
+
+      .disposal-instructions {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+      }
+
+      .instructions-header {
+        background-color: var(--primary-color);
+        color: var(--white);
+        padding: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .instructions-content {
+        padding: 1rem;
+      }
+
+      .instruction-step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        align-items: flex-start;
+      }
+
+      .step-number {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .step-text {
+        font-size: 0.9rem;
+      }
+
+      .step-important {
+        color: var(--danger-color);
+        font-weight: 500;
+      }
+
+      .environmental-impact {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 1.2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .impact-header {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .impact-stats {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .impact-stat {
+        flex: 1;
+        text-align: center;
+        padding: 0.8rem;
+        background-color: var(--primary-light);
+        border-radius: 8px;
+      }
+
+      .stat-value {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 0.3rem;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+
+      .impact-description {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        padding: 0.5rem;
+        border-left: 3px solid var(--primary-light);
+      }
+
+      .similar-waste {
+        margin-bottom: 1.5rem;
+      }
+
+      .similar-waste-header {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+      }
+
+      .waste-items {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding: 0.5rem 0;
+      }
+
+      .waste-item {
+        min-width: 110px;
+        background-color: var(--card-bg);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .waste-item-image {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        background-color: #f0f0f0;
+        background-image: url("/api/placeholder/110/80");
+        background-size: cover;
+      }
+
+      .waste-item-name {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        text-align: center;
+        font-weight: 500;
+      }
+
+      .collection-points {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 1.2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .collection-header {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .collection-point {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 0.8rem;
+        border-bottom: 1px solid var(--border-light);
+      }
+
+      .collection-point:last-child {
+        border-bottom: none;
+      }
+
+      .collection-icon {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        flex-shrink: 0;
+      }
+
+      .collection-details {
+        flex: 1;
+      }
+
+      .collection-name {
+        font-weight: 500;
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+      }
+
+      .collection-address {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.3rem;
+      }
+
+      .collection-phone {
+        font-size: 0.85rem;
+        color: var(--primary-color);
+      }
+
+      .directions-link {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 0.3rem;
+      }
+
+      /* Bottom action buttons */
+      .bottom-actions {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--white);
+        display: flex;
+        padding: 1rem;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+      }
+
+      .primary-action {
+        flex: 1;
+        background-color: var(--primary-color);
+        color: var(--white);
+        border: none;
+        padding: 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-right: 0.8rem;
+      }
+
+      .secondary-action {
+        background-color: transparent;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        padding: 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+      }
+
+      /* Additional elements */
+      .alternative-results {
+        margin-top: 0.5rem;
+      }
+
+      .alternative-item {
+        padding: 0.8rem;
+        border-radius: 8px;
+        background-color: var(--card-bg);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid var(--border-light);
+      }
+
+      .alternative-name {
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .alternative-confidence {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        background-color: var(--primary-light);
+        padding: 0.2rem 0.5rem;
+        border-radius: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="header-container">
+        <button class="back-button">←</button>
+        <div class="header-title">Kết quả phân tích</div>
+        <div class="action-buttons"></div>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main>
+      <!-- Analysis image -->
+      <div class="analysis-image-container">
+        <div class="analysis-image"></div>
+        <div class="image-overlay">
+          <div class="analyze-status">
+            <div class="status-indicator"></div>
+            <span>Đã phân tích</span>
+          </div>
+          <button class="edit-image">
+            <span>✏️</span>
+            <span>Chỉnh sửa</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Analysis results -->
+      <div class="results-container">
+        <div class="results-header">
+          <div class="results-title">Kết quả phân loại</div>
+          <div class="confidence-badge">
+            <span>✓</span>
+            <span>Độ tin cậy 95%</span>
+          </div>
+        </div>
+
+        <div class="waste-type-card">
+          <div class="waste-type-header">
+            <div class="waste-type-name">Màn hình LCD hỏng</div>
+            <div class="waste-category">Rác điện tử</div>
+          </div>
+
+          <div class="warning-tag">
+            <span>⚠️</span>
+            <span>Chứa thành phần độc hại - Cần xử lý đặc biệt</span>
+          </div>
+
+          <div class="waste-properties">
+            <div class="waste-property">
+              <span class="property-icon">🔄</span>
+              <span>Tái chế: Có (một phần)</span>
+            </div>
+            <div class="waste-property">
+              <span class="property-icon">⚠️</span>
+              <span>Độ nguy hại: Cao</span>
+            </div>
+            <div class="waste-property">
+              <span class="property-icon">⏱️</span>
+              <span>Phân hủy: Không tự phân hủy</span>
+            </div>
+          </div>
+
+          <div class="waste-description">
+            Màn hình LCD (màn hình tinh thể lỏng) chứa nhiều thành phần có thể
+            tái chế được nhưng cũng chứa các chất độc hại cần được xử lý đặc
+            biệt. Không được vứt vào thùng rác thông thường.
+
+            <div class="waste-components">
+              <div class="components-title">Thành phần chính:</div>
+              <ul class="item-list">
+                <li>Khung nhựa và kim loại (có thể tái chế)</li>
+                <li>Tấm kính và màng lọc</li>
+                <li>Mạch điện tử và chipset</li>
+                <li class="hazard-component">
+                  Đèn nền chứa thủy ngân (độc hại)
+                </li>
+                <li class="hazard-component">
+                  Chì trong linh kiện điện tử (độc hại)
+                </li>
+                <li class="hazard-component">
+                  Chất làm chậm cháy có bromide (độc hại)
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <button class="expand-button">
+            <span>Xem thêm thông tin</span>
+            <span>↓</span>
+          </button>
+        </div>
+
+        <div class="alternative-results">
+          <div class="alternative-item">
+            <div class="alternative-name">Màn hình LED</div>
+            <div class="alternative-confidence">38%</div>
+          </div>
+          <div class="alternative-item">
+            <div class="alternative-name">Màn hình máy tính</div>
+            <div class="alternative-confidence">32%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disposal instructions -->
+      <div class="disposal-instructions">
+        <div class="instructions-header">
+          <span>📋</span>
+          <span>Hướng dẫn xử lý đúng cách</span>
+        </div>
+        <div class="instructions-content">
+          <div class="instruction-step">
+            <div class="step-number">1</div>
+            <div class="step-text">
+              <span class="step-important"
+                >Không được vứt vào thùng rác thông thường hay đập vỡ màn
+                hình.</span
+              >
+              Màn hình chứa thủy ngân và các chất độc hại khác.
+            </div>
+          </div>
+          <div class="instruction-step">
+            <div class="step-number">2</div>
+            <div class="step-text">
+              Nếu còn sử dụng được, hãy xem xét sửa chữa hoặc quyên góp thiết
+              bị.
+            </div>
+          </div>
+          <div class="instruction-step">
+            <div class="step-number">3</div>
+            <div class="step-text">
+              Mang đến điểm thu gom rác thải điện tử chuyên dụng hoặc trung tâm
+              tái chế.
+            </div>
+          </div>
+          <div class="instruction-step">
+            <div class="step-number">4</div>
+            <div class="step-text">
+              Một số nhà sản xuất và cửa hàng điện tử có chương trình thu hồi -
+              kiểm tra với nhà sản xuất của bạn.
+            </div>
+          </div>
+          <div class="instruction-step">
+            <div class="step-number">5</div>
+            <div class="step-text">
+              Xóa dữ liệu cá nhân (nếu là màn hình máy tính có bộ nhớ) trước khi
+              xử lý.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collection points -->
+      <div class="collection-points">
+        <div class="collection-header">
+          <span>📍</span>
+          <span>Điểm thu gom gần đây</span>
+        </div>
+
+        <div class="collection-point">
+          <div class="collection-icon">🏢</div>
+          <div class="collection-details">
+            <div class="collection-name">
+              Trung tâm tái chế điện tử Việt Nam
+            </div>
+            <div class="collection-address">
+              123 Đường Nguyễn Văn Linh, Quận 7, TP. HCM
+            </div>
+            <div class="collection-phone">0923 456 789</div>
+            <a href="#" class="directions-link">Chỉ đường</a>
+          </div>
+        </div>
+
+        <div class="collection-point">
+          <div class="collection-icon">🏪</div>
+          <div class="collection-details">
+            <div class="collection-name">FPT Shop - Chương trình thu hồi</div>
+            <div class="collection-address">
+              456 Đường Lê Lợi, Quận 1, TP. HCM
+            </div>
+            <div class="collection-phone">0987 654 321</div>
+            <a href="#" class="directions-link">Chỉ đường</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Environmental impact -->
+      <div class="environmental-impact">
+        <div class="impact-header">
+          <span>🌱</span>
+          <span>Tác động môi trường</span>
+        </div>
+        <div class="impact-stats">
+          <div class="impact-stat">
+            <div class="stat-value">2kg</div>
+            <div class="stat-label">Chất độc hại tránh phát tán</div>
+          </div>
+          <div class="impact-stat">
+            <div class="stat-value">70%</div>
+            <div class="stat-label">Vật liệu có thể tái chế</div>
+          </div>
+          <div class="impact-stat">
+            <div class="stat-value">15kg</div>
+            <div class="stat-label">CO2 giảm thiểu</div>
+          </div>
+        </div>
+
+        <div class="impact-description">
+          Xử lý đúng cách rác điện tử giúp ngăn chặn các chất độc như thủy ngân,
+          chì và cadmium thấm vào đất và nguồn nước, bảo vệ sức khỏe con người
+          và hệ sinh thái.
+        </div>
+      </div>
+
+      <!-- Similar waste types -->
+      <div class="similar-waste">
+        <div class="similar-waste-header">Rác thải tương tự</div>
+        <div class="waste-items">
+          <div class="waste-item">
+            <div class="waste-item-image"></div>
+            <div class="waste-item-name">TV LCD</div>
+          </div>
+          <div class="waste-item">
+            <div class="waste-item-image"></div>
+            <div class="waste-item-name">Màn hình LED</div>
+          </div>
+          <div class="waste-item">
+            <div class="waste-item-image"></div>
+            <div class="waste-item-name">Laptop</div>
+          </div>
+          <div class="waste-item">
+            <div class="waste-item-image"></div>
+            <div class="waste-item-name">Máy tính bảng</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom action buttons -->
+    <div class="bottom-actions">
+      <button id="save-result" class="primary-action">Lưu kết quả</button>
+      <button class="secondary-action">↗️</button>
+    </div>
+
+    <script>
+      // Toggle expand button
+      document
+        .querySelector(".expand-button")
+        .addEventListener("click", function () {
+          const button = this;
+          const description = document.querySelector(".waste-description");
+
+          if (description.style.maxHeight) {
+            description.style.maxHeight = null;
+            button.innerHTML = "<span>Xem thêm thông tin</span><span>↓</span>";
+          } else {
+            description.style.maxHeight = description.scrollHeight + "px";
+            button.innerHTML = "<span>Thu gọn</span><span>↑</span>";
+          }
+        });
+
+      document
+        .querySelector(".back-button")
+        .addEventListener("click", function () {
+          window.location.href = "./index.html";
+        });
+
+      document
+        .querySelector("#save-result")
+        .addEventListener("click", function () {
+          window.location.href = "./history.html";
+        });
+    </script>
+  </body>
+</html>
