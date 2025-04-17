@@ -570,6 +570,23 @@
         padding: 0.2rem 0.5rem;
         border-radius: 30px;
       }
+
+      body {
+        background-color: #444444;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+      main {
+        background-color: #ececec;
+      }
+
+      .bottom-actions {
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 500px;
+        width: 100%;
+      }
+
     </style>
   </head>
   <body>
@@ -586,7 +603,7 @@
     <main>
       <!-- Analysis image -->
       <div class="analysis-image-container">
-        <div class="analysis-image"></div>
+        <div class="analysis-image"  style="background-size:cover;background-position:center;background-image:url(./img2.JPG);"></div>
         <div class="image-overlay">
           <div class="analyze-status">
             <div class="status-indicator"></div>
@@ -784,29 +801,6 @@
           Xử lý đúng cách rác điện tử giúp ngăn chặn các chất độc như thủy ngân,
           chì và cadmium thấm vào đất và nguồn nước, bảo vệ sức khỏe con người
           và hệ sinh thái.
-        </div>
-      </div>
-
-      <!-- Similar waste types -->
-      <div class="similar-waste">
-        <div class="similar-waste-header">Rác thải tương tự</div>
-        <div class="waste-items">
-          <div class="waste-item">
-            <div class="waste-item-image"></div>
-            <div class="waste-item-name">TV LCD</div>
-          </div>
-          <div class="waste-item">
-            <div class="waste-item-image"></div>
-            <div class="waste-item-name">Màn hình LED</div>
-          </div>
-          <div class="waste-item">
-            <div class="waste-item-image"></div>
-            <div class="waste-item-name">Laptop</div>
-          </div>
-          <div class="waste-item">
-            <div class="waste-item-image"></div>
-            <div class="waste-item-name">Máy tính bảng</div>
-          </div>
         </div>
       </div>
     </main>

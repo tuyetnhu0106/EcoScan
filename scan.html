@@ -331,6 +331,35 @@
         justify-content: center;
         display: none;
       }
+
+      body {
+        background-color: #444444;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+      .main-container {
+        background-color: #ececec;
+      }
+
+      .bottom-nav {
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 500px;
+      }
+
+      .camera-overlay {
+        max-width: 500px;
+      }
+
+      .camera-feed {
+        max-width: 500px;
+      }
+
+      .camera-container {
+        width: 100%;
+        max-width: 500px;
+      }
+
     </style>
   </head>
   <body>
@@ -347,7 +376,9 @@
       </div>
 
       <!-- Camera overlay UI -->
-      <div class="camera-overlay">
+      <div class="camera-overlay"
+      style="background-size:cover;background-position:center;background-image:url(./img2.JPG);"
+      >
         <!-- Top controls -->
         <div class="top-controls">
           <button class="back-button">←</button>
